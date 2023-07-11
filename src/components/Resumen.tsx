@@ -8,8 +8,6 @@ export default function Resumen() {
   const { carrito, totalCarrito } = useApp();
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
-
-
   return isMobile ? null : (
     <Box
       h="100vh"
@@ -33,7 +31,7 @@ export default function Resumen() {
             <ProductResumen product={product} key={product.id} />
           ))}
           <Text mt={8} fontSize={"2xl"} fontWeight={"bold"}>
-            Total: ${totalCarrito()}
+            💶Total: ${totalCarrito()}
           </Text>
           <PayButton />
         </Box>

@@ -18,7 +18,7 @@ import ModalCarrito from "./ModalCarrito";
 import { useAuth } from "../hook/useAuth";
 import { useNavigate } from "react-router-dom";
 export default function Sidebar() {
-  const { categories, setIsOpenModal, user } = useApp();
+  const { categories, setIsOpenModal, user, setOpenHistory } = useApp();
   const [isLoadingLogout, setIsLoadingLogout] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { logout } = useAuth();
@@ -63,17 +63,32 @@ export default function Sidebar() {
                     </MenuButton>
                     <MenuList>
                       {user ? (
-                        <MenuItem
-                          bgColor="red"
-                          color={"white"}
-                          fontSize={"md"}
-                          fontWeight={"semibold"}
-                          onClick={() => {
-                            logout();
-                          }}
-                        >
-                          Logout
-                        </MenuItem>
+                        <>
+                          <MenuItem
+                            bgColor="red"
+                            color={"white"}
+                            fontSize={"md"}
+                            fontWeight={"semibold"}
+                            onClick={() => {
+                              logout();
+                            }}
+                          >
+                            Logout
+                          </MenuItem>
+                          {user.customer && (
+                            <MenuItem
+                              bgColor="blue.500"
+                              color={"white"}
+                              fontSize={"md"}
+                              fontWeight={"semibold"}
+                              onClick={() => {
+                                setOpenHistory(true);
+                              }}
+                            >
+                              History
+                            </MenuItem>
+                          )}
+                        </>
                       ) : (
                         <MenuItem
                           bgColor="blue.500"
@@ -115,11 +130,7 @@ export default function Sidebar() {
             mb={4}
           >
             Hello!{" "}
-            <Text
-              fontWeight={"bold"}
-              display={"inline"}
-              color={"orange.400"}
-            >
+            <Text fontWeight={"bold"} display={"inline"} color={"orange.400"}>
               {user?.firstName?.toUpperCase()}
             </Text>
           </Text>
@@ -129,21 +140,35 @@ export default function Sidebar() {
             ))}
           </Box>
           {user ? (
-            <Button
-              colorScheme="red"
-              rounded={"none"}
-              isLoading={isLoadingLogout}
-              fontSize={"lg"}
-              loadingText="Submitting"
-              my={3}
-              onClick={() => {
-                setIsLoadingLogout(true);
-                logout();
-                setIsLoadingLogout(false);
-              }}
-            >
-              Logout
-            </Button>
+            <>
+              <Button
+                colorScheme="red"
+                rounded={"none"}
+                isLoading={isLoadingLogout}
+                fontSize={"lg"}
+                loadingText="Submitting"
+                my={3}
+                onClick={() => {
+                  setIsLoadingLogout(true);
+                  logout();
+                  setIsLoadingLogout(false);
+                }}
+              >
+                Logout
+              </Button>
+              {user.customer && (
+                <Button
+                colorScheme="blue"
+                rounded={"none"}
+                fontSize={"lg"}
+                  onClick={() => {
+                    setOpenHistory(true);
+                  }}
+                >
+                  History
+                </Button>
+              )}
+            </>
           ) : (
             <Button
               colorScheme="blue"

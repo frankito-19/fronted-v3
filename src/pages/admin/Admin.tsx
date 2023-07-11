@@ -7,13 +7,13 @@ import Stadistics from "./Stadistics";
 
 export default function Admin() {
   const { featureAdmin } = useApp();
-  const { user } = useApp()
-  const navigate = useNavigate()
-  if(!user)navigate("/")
-  if(!localStorage.getItem("token"))navigate("/")
+  const { user } = useApp();
+  const navigate = useNavigate();
+  if (!user) navigate("/");
+  if (!localStorage.getItem("token")) navigate("/");
   switch (featureAdmin?.id) {
     case 1:
-      return <Stadistics/>
+      return <Stadistics />;
       break;
 
     case 2:
@@ -25,7 +25,7 @@ export default function Admin() {
       break;
 
     case 4:
-      return <Purchases/>
+      return <Purchases />;
       break;
 
     default:

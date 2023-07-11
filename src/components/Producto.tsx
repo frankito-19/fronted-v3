@@ -319,6 +319,7 @@ export default function Producto({ producto, isAdmin = false }: productoProp) {
                 >
                   {categories?.map((category) => (
                     <option
+                    key={category.id}
                       /*                     onChange={handleChangeProduct}
                        */ value={category.id}
                     >

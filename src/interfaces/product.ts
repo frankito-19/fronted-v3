@@ -11,7 +11,7 @@ export interface ProductInterface {
 
   price: number;
 
-  quantity?:number;
+  quantity?: number;
 
   category: CategoryInterface;
 }

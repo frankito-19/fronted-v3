@@ -8,16 +8,18 @@ import {
 } from "react";
 
 import { CategoryInterface } from "../interfaces/category";
-import apiClient from "../config/axiosClient";
 import { ProductInterface } from "../interfaces/product";
 import { UserDto } from "../interfaces/user";
 import { useToast } from "@chakra-ui/react";
+import { getAllCategories } from "../api/category.api";
+import { createOrderMp, createPurchase } from "../api/purchase.api";
+import { createPurchasesProducts } from "../api/purchaseProduct";
 interface MyContextType {
   categories: CategoryInterface[] | null;
   setCategories: Dispatch<SetStateAction<CategoryInterface[] | null>>;
 
   setActualCategory: (categoryToUpdate: CategoryInterface) => void;
-  actualCategory: CategoryInterface | undefined;
+  actualCategory: CategoryInterface;
   handleClickCategory: (id: number) => void;
   styleCss: { principal: string };
   carrito: ProductInterface[] | null;
@@ -36,7 +38,34 @@ interface MyContextType {
   setChangeCategory: Dispatch<SetStateAction<boolean>>;
   changeCategory: boolean;
   totalCarrito: () => number;
+  openHistory: boolean;
+  setOpenHistory: Dispatch<SetStateAction<boolean>>;
+  flatFetch: boolean;
+  setFlatFetch: Dispatch<SetStateAction<boolean>>;
 }
+
+const categoriesAdmin: CategoryInterface[] = [
+  {
+    id: 1,
+    img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688648111/3309960_synkq9.png",
+    name: "Stadistics",
+  },
+  {
+    id: 2,
+    img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688004054/mouse-gamer-logitech-g-pro-gaming-con-cable-luz-led-rgb-12000-dpi_qobn5p.jpg",
+    name: "Products",
+  },
+  {
+    id: 3,
+    img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688648259/images_ffrrid.jpg",
+    name: "Categories",
+  },
+  {
+    id: 4,
+    img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688648341/images_vs2byy.png",
+    name: "Purchases",
+  },
+];
 
 export const AppContext = createContext<MyContextType>({} as MyContextType);
 
@@ -49,34 +78,28 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
 }) => {
   const [categories, setCategories] = useState<CategoryInterface[] | null>([]);
   const [carrito, setCarrito] = useState<ProductInterface[] | []>([]);
-  const [actualCategory, setActualCategory] = useState<
-    CategoryInterface | undefined
-  >({
+  const [actualCategory, setActualCategory] = useState<CategoryInterface>({
     id: 0,
     img: "",
     name: "",
   });
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [user, setUser] = useState<UserDto | null>(null);
-  const [featureAdmin, setFeatureAdmin] = useState<
-    CategoryInterface | undefined
-  >({
-    id: 1,
-    img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688648111/3309960_synkq9.png",
-    name: "Estadistics",
-  });
-  const toast = useToast();
+  const [featureAdmin, setFeatureAdmin] = useState<CategoryInterface>(
+    categoriesAdmin[0]
+  );
   const [changeCategory, setChangeCategory] = useState(false);
+  const [openHistory, setOpenHistory] = useState(false);
+  const [flatFetch, setFlatFetch] = useState<boolean>(false);
+
+  const toast = useToast();
+
   const fetchCategories = async () => {
     try {
-      const response = await apiClient.get("/category");
-      if (response.data.ok) {
-        const newCategories = response.data.body;
-        setCategories(newCategories);
-        setActualCategory(newCategories[0]);
-      } else {
-        throw new Error("Error fetch categories");
-      }
+      const response = await getAllCategories();
+      if (!response.data.ok) throw new Error("Error fetch categories");
+      setCategories(response.data.body);
+      setActualCategory(response.data.body[0]);
     } catch (error) {
       console.log(error);
     }
@@ -88,7 +111,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
 
   const handleClickCategory = (id: number) => {
     const category = categories?.filter((category) => category.id == id)[0];
-    setActualCategory(category);
+    setActualCategory(category!);
   };
 
   const handleAddToCarrito = (product: ProductInterface) => {
@@ -144,46 +167,46 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     });
   };
 
+  const payMercadoPago = async () => {
+    const response = await createOrderMp(carrito);
+    window.location.replace(response.data.body.urlMercadoPago);
+  };
+
   const pay = async (payment: string, customerId: number) => {
     if (user && carrito.length > 0) {
       try {
-        const response = await apiClient.post("/purchase", {
+        const response = await createPurchase({
           state: "pendiente",
           payment,
           customer: customerId,
         });
-        if (response.data.ok) {
-          if(payment == "MP"){
-            const response = await apiClient.post("/create-order-mp", {carrito});
-            window.location.replace(response.data.body.urlMercadoPago);
-          }
-          Promise.all(
-            carrito.map((product) => {
-              return apiClient.post("/purchasesProducts", {
-                quantity: product.quantity,
-                purchase: response.data.body.id,
-                product: product.id,
-              });
-            })
-          )
-            .then(() => {
-              setCarrito([]);
-              toast({
-                title: "Purchase success",
-                description: "Enjoy your purchase",
-                status: "success",
-                duration: 2000,
-                isClosable: true,
-              });
-              setIsOpenModal(false);
-              return;
-            })
-            .catch(() => {
-              throw new Error("err");
+        if (!response.data.ok) throw new Error("err");
+        if (payment == "MP") payMercadoPago();
+        setFlatFetch(false)
+        Promise.all(
+          carrito.map((product) => {
+            return createPurchasesProducts({
+              quantity: product.quantity!,
+              purchase: response.data.body.id,
+              product: product.id,
             });
-        } else {
-          throw new Error("err");
-        }
+          })
+        )
+          .then(() => {
+            setCarrito([]);
+            toast({
+              title: "Purchase success",
+              description: "Enjoy your purchase",
+              status: "success",
+              duration: 2000,
+              isClosable: true,
+            });
+            setIsOpenModal(false);
+            return;
+          })
+          .catch(() => {
+            throw new Error("err");
+          });
       } catch (error) {
         toast({
           title: "Error from server",
@@ -202,29 +225,6 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
       });
     }
   };
-
-  const categoriesAdmin: CategoryInterface[] = [
-    {
-      id: 1,
-      img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688648111/3309960_synkq9.png",
-      name: "Stadistics",
-    },
-    {
-      id: 2,
-      img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688004054/mouse-gamer-logitech-g-pro-gaming-con-cable-luz-led-rgb-12000-dpi_qobn5p.jpg",
-      name: "Products",
-    },
-    {
-      id: 3,
-      img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688648259/images_ffrrid.jpg",
-      name: "Categories",
-    },
-    {
-      id: 4,
-      img: "https://res.cloudinary.com/dacgvqpeg/image/upload/v1688648341/images_vs2byy.png",
-      name: "Purchases",
-    },
-  ];
 
   const handleClickCategoryAdmin = (id: number) => {
     const category = categoriesAdmin?.filter(
@@ -259,7 +259,11 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     handleClickCategoryAdmin,
     setChangeCategory,
     changeCategory,
-    totalCarrito
+    totalCarrito,
+    openHistory,
+    setOpenHistory,
+    flatFetch,
+    setFlatFetch
   };
 
   return (

@@ -5,13 +5,9 @@ import {
   Heading,
   CardBody,
   Text,
-  Tag,
-  TagCloseButton,
-  TagLabel,
   ListItem,
   ListIcon,
   List,
-  Box,
 } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
 import useSWR from "swr";
@@ -42,13 +38,19 @@ export const Purchases = () => {
     >
       {data.body.map((purchase: any) => {
         return (
-          <Card minH={"md"} display={"flex"} direction={"column"} justifyContent={"space-between"} alignItems={"center"}>
+          <Card
+            minH={"md"}
+            display={"flex"}
+            direction={"column"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
             <CardHeader display={"flex"} flexDirection={"column"} gap={1}>
               <Heading size="md">Dni Client: {purchase.customer.dni}</Heading>
               <Heading size="md">State: {purchase.state}</Heading>
               <Heading size="md">Payment: {purchase.payment}</Heading>
             </CardHeader>
-            <CardBody >
+            <CardBody>
               <List spacing={3} maxHeight={60} overflowY={"scroll"}>
                 {purchase.purchasesProducts.length > 0 ? (
                   purchase.purchasesProducts.map((product: any) => {
@@ -67,7 +69,7 @@ export const Purchases = () => {
                 )}
               </List>{" "}
               <Heading textAlign={"center"} mt={3} size="md">
-                Total: {purchase.totalPurchase}
+                💶 Total: {purchase.totalPurchase}
               </Heading>
             </CardBody>
           </Card>

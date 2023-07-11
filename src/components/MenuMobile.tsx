@@ -15,18 +15,26 @@ interface props {
 }
 
 export default function MenuMobile({ isAdmin = false }: props) {
-  const { handleClickCategory, actualCategory, categories, categoriesAdmin, handleClickCategoryAdmin, featureAdmin } = useApp();
+  const {
+    handleClickCategory,
+    actualCategory,
+    categories,
+    categoriesAdmin,
+    handleClickCategoryAdmin,
+    featureAdmin,
+  } = useApp();
 
   return (
     <Menu>
-      <MenuButton  as={Button} rightIcon={<ChevronDownIcon />}>
-        {isAdmin? "Menu" : " Category"}
+      <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+        {isAdmin ? "Menu" : " Category"}
       </MenuButton>
       <MenuList>
         {!isAdmin
           ? categories?.map((category: CategoryInterface) => {
               return (
                 <MenuItem
+                  key={category.id}
                   minH="48px"
                   onClick={() => handleClickCategory(category.id)}
                   bgColor={

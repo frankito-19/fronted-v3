@@ -14,17 +14,16 @@ export default function Stadistics() {
         { year: 2015, count: 160 },
         { year: 2016, count: 100 },
       ];
-
-      const DATA_COUNT = 5;
-      const NUMBER_CFG = { count: DATA_COUNT, min: 0, max: 100 };
-
+ 
       let data1: any;
-      let data2:any;
+      let data2: any;
       try {
         const response = await apiClient.get("/purchase/stadistics");
         if (!response.data.ok) throw new Error("err");
         data1 = {
-          labels: response.data.body.stadisticsProducts.map((product: any) => product.productName),
+          labels: response.data.body.stadisticsProducts.map(
+            (product: any) => product.productName
+          ),
           datasets: [
             {
               label: "Dataset 1",
@@ -42,23 +41,25 @@ export default function Stadistics() {
           ],
         };
         data2 = {
-            labels: response.data.body.stadisticsCategory.map((product: any) => product.categoryName),
-            datasets: [
-              {
-                label: "Dataset 1",
-                data: response.data.body.stadisticsCategory.map(
-                  (product: any) => product.totalQuantity
-                ),
-                backgroundColor: [
-                  "rgb(255, 99, 132)",
-                  "rgb(54, 162, 235)",
-                  "rgb(255, 205, 86)",
-                  " rgb(26, 93, 26) ",
-                  " rgb(255, 208, 208)",
-                ],
-              },
-            ],
-        }
+          labels: response.data.body.stadisticsCategory.map(
+            (product: any) => product.categoryName
+          ),
+          datasets: [
+            {
+              label: "Dataset 1",
+              data: response.data.body.stadisticsCategory.map(
+                (product: any) => product.totalQuantity
+              ),
+              backgroundColor: [
+                "rgb(255, 99, 132)",
+                "rgb(54, 162, 235)",
+                "rgb(255, 205, 86)",
+                " rgb(26, 93, 26) ",
+                " rgb(255, 208, 208)",
+              ],
+            },
+          ],
+        };
       } catch (error) {
         data1 = {
           labels: [
@@ -95,10 +96,7 @@ export default function Stadistics() {
             },
           ],
         };
-
-
       }
-
 
       const chartElement = document.getElementById(
         //for year
@@ -141,9 +139,9 @@ export default function Stadistics() {
                   size: 18,
                 },
               },
-              tooltip:{
-                boxHeight:60
-              }
+              tooltip: {
+                boxHeight: 60,
+              },
             },
           },
         });
@@ -169,9 +167,9 @@ export default function Stadistics() {
                   size: 18,
                 },
               },
-              tooltip:{
-                boxHeight:60
-              }
+              tooltip: {
+                boxHeight: 60,
+              },
             },
           },
         });
@@ -192,10 +190,10 @@ export default function Stadistics() {
         justifyContent={"space-around"}
         alignItems={"center"}
       >
-        <Box  w={{ base: "300px", md: "300px", lg: "400px" }}>
+        <Box w={{ base: "300px", md: "300px", lg: "400px" }}>
           <canvas id="acquisitions1"></canvas>
         </Box>
-        <Box  w={{ base: "300px", md: "300px", lg: "400px" }}>
+        <Box w={{ base: "300px", md: "300px", lg: "400px" }}>
           <canvas id="acquisitions2"></canvas>
         </Box>
       </Flex>
