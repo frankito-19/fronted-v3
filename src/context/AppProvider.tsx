@@ -141,13 +141,15 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   };
 
   const totalCarrito = () => {
-    if (carrito)
-      return carrito.reduce(
-        (acc, product: ProductInterface) =>
-          acc + product.price * (product.quantity ? product.quantity : 1),
-        0
+    if (carrito) {
+      let total = 0;
+      carrito.forEach(
+        (product) => (total += product.price * (product.quantity || 1))
       );
-    return 0;
+      return total;
+    } else {
+      return 0;
+    }
   };
 
   const handleEditProductOfCarrito = (id: number, newQuantity: number) => {
@@ -167,8 +169,8 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     });
   };
 
-  const payMercadoPago = async () => {
-    const response = await createOrderMp(carrito);
+  const payMercadoPago = async (idPurchase:number) => {
+    const response = await createOrderMp(carrito, idPurchase);
     window.location.replace(response.data.body.urlMercadoPago);
   };
 
@@ -181,8 +183,8 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
           customer: customerId,
         });
         if (!response.data.ok) throw new Error("err");
-        if (payment == "MP") payMercadoPago();
-        setFlatFetch(false)
+        if (payment == "MP") payMercadoPago(response.data.body.id);
+        setFlatFetch(false);
         Promise.all(
           carrito.map((product) => {
             return createPurchasesProducts({
@@ -263,7 +265,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     openHistory,
     setOpenHistory,
     flatFetch,
-    setFlatFetch
+    setFlatFetch,
   };
 
   return (

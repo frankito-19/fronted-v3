@@ -11,8 +11,8 @@ export const createPurchase = (purchase:PurchaseInterface): Promise<AxiosRespons
 };
 
 
-export const createOrderMp = (carrito:ProductInterface[] | ProductInterface): Promise<AxiosResponse<any, any>> => {
-  return apiClient.post(mpPrefix, {carrito});
+export const createOrderMp = (carrito:ProductInterface[] | ProductInterface, idPurchase:number): Promise<AxiosResponse<any, any>> => {
+  return apiClient.post(mpPrefix, {carrito, idPurchase });
 };
 
 
